@@ -1,4 +1,4 @@
-﻿#target InDesign
+#target InDesign
 /*
 Release notes: 2.1 - added in paragraph sequencing function, goes through document and sorts objects by page and then geometric bounds, this is to ensure that media elements are properly sequenced with their paragraph	
 	*/
@@ -146,17 +146,16 @@ function initializeXmlBook(){
 
 function getDocumentList(){
 	$.writeln("entering: getDocumentList ");
-//var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas"];
-//var folder = Folder.selectDialog ();
-//var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign"];
-var folders = ["C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15"];
-//var folder = Folder("C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\Isolated Test");
-//var folder = Folder("C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas")
-
-for(var i = 0; i<folders.length; i++){
-    var folder = Folder(folders[i]);
-    GetSubFolders(folder);
-    }
+	//var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas"];
+	//var folder = Folder.selectDialog ();
+	//var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign"];
+	var folders = ["C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15"];
+	//var folder = Folder("C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\Isolated Test");
+	//var folder = Folder("C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas")
+	for(var i = 0; i<folders.length; i++){
+		var folder = Folder(folders[i]);
+		GetSubFolders(folder);
+		}
 	
 /*
 myFiles = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign\\Book 2-Edition 3\\Unit 5 - Chapter 23-26\\CEPE05200B2_023.indd"]; // over write myFile list with single document
@@ -736,6 +735,7 @@ function getRef(reftype, rid, str){
     }
 
 function handleList(listParagraph){
+	$.writeln("entering: listParagraph");
 	var arrListStyles = ['Bullets', 'Number/Letter Indent', 'Number/Letter Indent2', 'Note'];
 	var arrSublistStyles = ['Number/Letter Sub', 'Number/Letter Indent_Sub', 'Bullets-sub', 'Q & A Indent'];
 	if(typeof iList1 === 'undefined'){iList1 = 0};
@@ -780,6 +780,11 @@ function handleList(listParagraph){
 	}
 
 function getActiveHeadingNode(){
+	$.writeln("entering: getActiveHeadingNode");
+	if(typeof tmpHeadingLevel === 'undefined'){
+		tmpHeadingLevel = "";
+		}
+	
 	if(tmpHeadingLevel == 1){
 		return chapter.sec[iH1-1];
 		}
@@ -792,9 +797,13 @@ function getActiveHeadingNode(){
 	else if(tmpHeadingLevel == 4){
 		return chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].sec[iH4-1];
 		}
+	else{
+		return chapter;
+		}
 	}
 
 function getActiveListNode(){
+	$.writeln("entering: getActiveListNode");
 	// if iList2 not active
 	if(iList2 == 0){
 		if(iList1 == 0){getActiveHeadingNode().appendChild(new XML("<list>")); iList1++};
@@ -842,6 +851,7 @@ function classifyTable(p){
 	}
 
 function handleHeaderTable(type,p){
+	$.writeln("entering: handleHeaderTable");
 	if(p.tables.length == 1){
 		var table = p.tables[0];
 		}
@@ -913,6 +923,7 @@ function tblToJPG(table,parentParagraph,tblClass,varCount){
 	}// function
 
 function handleOutcomeTable(table){
+	$.writeln("entering: handleOutcomeTable");
     // add header outcome to document; chapter/paragraph/boxedtext/
     var headerOutcome = table.cells[0];
     chapter.appendChild(new XML("<p>")) // add paragraph to root
@@ -931,7 +942,6 @@ function handleOutcomeTable(table){
         var activeP = objectiveBox.p[objectiveBox.p.length()-1]; // get sub paragraph index
         activeP.bold.italic = listOutcomes.paragraphs[i].contents;
         }
-	
     var headerObjectives = table.cells[2];
 	chapter.appendChild(new XML("<p>")) // add paragraph to root
 	var activeP = chapter.p[chapter.p.length()-1];
@@ -965,6 +975,7 @@ function handleOutcomeTable(table){
     }
 
 function handleObjectiveTable(table){
+	$.writeln("entering: handleObjectiveTable");
     // add header outcome to document; chapter/paragraph/boxedtext/
     var headerObjective = table.cells[0];
 	getActiveHeadingNode ().appendChild(new XML("<p>"));
@@ -983,6 +994,7 @@ function handleObjectiveTable(table){
     }
 
 function createManifest(fManifest){
+	$.writeln("entering: createManifest");
 	//create chapter folder
     var chapterFolder = "C:\\Users\\kstaples\\Desktop\\0001 - Projects\\47 - New NLM\\NLM OUT\\"+app.activeDocument.name.replace(".indd","")+"\\";
     if(Folder(chapterFolder).exists==false){
@@ -1005,6 +1017,7 @@ function createManifest(fManifest){
     }
 
 function sequenceParagraphs(doc) {
+	$.writeln("entering: sequenceParagraphs");
 	var paragraphs = [];
 	//process document by spreads, pages, textFrames, paragraphs, tables
 	for (var i = 0; i < doc.pages.length; i++) {
@@ -1065,6 +1078,7 @@ function sequenceParagraphs(doc) {
 	}
 
 function getBounds(p){
+	$.writeln("entering: getBounds");
 	if(p.characters[0].tables.length>0){
 		return getTableBounds(p);
 		}
@@ -1075,6 +1089,7 @@ function getBounds(p){
 	}
 
 function getTableBounds(tbl){
+	$.writeln("entering: getTableBounds");
 	app.select(tbl);
 	app.activeDocument.zeroPoint=[0,0];
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
@@ -1090,6 +1105,7 @@ function getTableBounds(tbl){
 	}
 
 function getParagraphBounds(p){
+	$.writeln("entering: getParagraphBounds");
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
 	app.activeDocument.viewPreferences.verticalMeasurementUnits = MeasurementUnits.POINTS;
 	app.select(p);
@@ -1103,6 +1119,7 @@ function getParagraphBounds(p){
 	}
 
 function getRectangleBounds(r){
+	$.writeln("entering: getRectangleBounds");
 	app.activeDocument.zeroPoint=[0,0];
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
 	app.activeDocument.viewPreferences.verticalMeasurementUnits = MeasurementUnits.POINTS;
@@ -1142,6 +1159,7 @@ function handleRectangle(r){
 	}
 
 function getLinkURL(objSource){
+	$.writeln("entering: getLinkURL");
 	var hyperlinks = app.activeDocument.hyperlinks;
 	for(var i = 0; i<hyperlinks.length; i++){
 		var hyperlink = hyperlinks[i];
@@ -1179,11 +1197,13 @@ function getActiveParagraph(){
 	}
 
 function addMediaToObject(parentObject,URL){
+	$.writeln("entering: addMediaToObject");
 	parentObject.appendChild(new XML("<media>"));
 	parentObject.media[parentObject.media.length()-1].@['xlinkhref'] = URL;
 	}
 
 function addGraphicToObject(parentObject,graphic){
+	$.writeln("entering: addGraphicToObject");
 	parentObject.appendChild(new XML("<inline-graphic>"));
 	graphicToJPG(graphic);
 	var extension = decodeURI(File(graphic.itemLink.filePath).name.split(".")[File(graphic.itemLink.filePath).name.split(".").length-1]);
@@ -1193,6 +1213,7 @@ function addGraphicToObject(parentObject,graphic){
 	}
 
 function getLinkURL(objSource){
+	$.writeln("entering: getLinkURL");
 	var hyperlinks = app.activeDocument.hyperlinks;
 	for(var i = 0; i<hyperlinks.length; i++){
 		var hyperlink = hyperlinks[i];
@@ -1204,6 +1225,7 @@ function getLinkURL(objSource){
 	}
 
 function graphicToJPG(graphic){
+	$.writeln("entering: graphicToJPG");
 	if(typeof graphic === 'undefined'){alert("Graphic undefined.")};
 	var extension = decodeURI(File(graphic.itemLink.filePath).name.split(".")[File(graphic.itemLink.filePath).name.split(".").length-1]);
 	var jpgFilename = File(graphic.itemLink.filePath).name.replace(extension,"jpg");
@@ -1221,7 +1243,8 @@ function graphicToJPG(graphic){
 		}
 	}
 
-function GetSubFolders(theFolder) {  
+function GetSubFolders(theFolder) {
+	$.writeln("entering: GetSubFolders");
      var myFileList = theFolder.getFiles();  
      for (var i = 0; i < myFileList.length; i++) {  
           var myFile = myFileList[i];  
@@ -1235,6 +1258,7 @@ function GetSubFolders(theFolder) {
 }
 
 function resetGlobals(){
+	$.writeln("entering: resetGlobals");
 	iH1 = undefined ();
 	iH2 = undefined ();
 	iH3 = undefined ();
@@ -1255,6 +1279,7 @@ function undefined(){
 
 function addInlineGraphic(image)
 {
+	$.writeln("entering: addInlineGraphic");
     var chapterNumber = pad(iChapter,3);
     var chapterFolder = "C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\NLM Out\\"+app.activeDocument.name.replace(".indd","")+"\\";
     if(Folder(chapterFolder).exists){}else{Folder(chapterFolder).create()}
@@ -1276,6 +1301,7 @@ function addInlineGraphic(image)
     }
 
 function convertBulletsAndNumberingToText(){
+	$.writeln("convertBulletsAndNumberingToText");
 	for(var i = app.activeDocument.pages.length-1; i >= 0; i--){
 		var pg = app.activeDocument.pages[i];
 		for(var j = pg.textFrames.length-1; j >= 0; j--){
@@ -1304,6 +1330,7 @@ function convertBulletsAndNumberingToText(){
 	}
 
 function handleTableHeader(p){
+	$.writeln("handleTableHeader");
 	var table = p.tables[0];
 	if(typeof iTable === 'undefined'){iTable = 1}
 	else{iTable++}
@@ -1322,6 +1349,7 @@ function handleTableHeader(p){
 	}
 
 function handleMiscTable(p){
+	$.writeln("handleMiscTable");
 	var table = p.tables[0];
 	//handle table header
 	if(typeof iMiscTable === 'undefined'){iMiscTable = 1}
