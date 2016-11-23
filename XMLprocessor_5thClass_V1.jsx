@@ -1,4 +1,4 @@
-﻿#target InDesign
+#target InDesign
 /*
 Release notes: 2.1 - added in paragraph sequencing function, goes through document and sorts objects by page and then geometric bounds, this is to ensure that media elements are properly sequenced with their paragraph	
 	*/
@@ -41,13 +41,14 @@ for(var i = 0; i<myFiles.length; i++){
 	 
 	 // for targetting specific files / ranges	 
 	 /*
-	if(File(myFiles[i]).name=="CEPE05200B1_010.indd"){
+	if(File(myFiles[i]).name=="CEPE03200A2_006.indd"){
 		bContinue = false;
 		}
 	if(bContinue == true){
 		continue;
 		}
 		*/
+		
 		
 	app.open(File(myFiles[i]),true);
 	convertBulletsAndNumberingToText ();
@@ -146,17 +147,16 @@ function initializeXmlBook(){
 
 function getDocumentList(){
 	$.writeln("entering: getDocumentList ");
-//var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas"];
-//var folder = Folder.selectDialog ();
-//var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign"];
-var folders = ["C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15"];
-//var folder = Folder("C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\Isolated Test");
-//var folder = Folder("C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas")
-
-for(var i = 0; i<folders.length; i++){
-    var folder = Folder(folders[i]);
-    GetSubFolders(folder);
-    }
+	//var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas"];
+	//var folder = Folder.selectDialog ();
+	var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign\\"];
+	//var folders = ["C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15"];
+	//var folder = Folder("C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\Isolated Test");
+	//var folder = Folder("C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas")
+	for(var i = 0; i<folders.length; i++){
+		var folder = Folder(folders[i]);
+		GetSubFolders(folder);
+		}
 	
 /*
 myFiles = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign\\Book 2-Edition 3\\Unit 5 - Chapter 23-26\\CEPE05200B2_023.indd"]; // over write myFile list with single document
@@ -536,6 +536,7 @@ function parseParagraph(){
 	for(var i = 0; i<paragraphs.length; i++){
 		if(paragraphs[i].type == "paragraph"){
 			var p = app.activeDocument.pages[paragraphs[i]["pgId"]].textFrames[paragraphs[i]["tfId"]].paragraphs[paragraphs[i]["pId"]];
+			$.writeln(paragraphs[i]["pgId"]+", "+paragraphs[i]["tfId"]+", "+paragraphs[i]["pId"]);
 			if(p.characters.length==0){continue};
 			handleParagraph(p);
 			}
@@ -611,7 +612,7 @@ function handleTable(p){
 		activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::href'] = "CH"+pad(iChapter,3)+".FIG"+pad(iFigure,3);
 		activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::title'] = "Figure "+iFigure;
 		activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xhtml::xlink'] = "http://www.w3.org/1999/xlink";
-		manifest[manifest.length] = {href:"CH"+pad(iChapter,3)+"."+"FIG"+pad(iFigure+1,3)};
+		manifest[manifest.length] = {href:app.activeDocument.name.replace(".indd","")+"."+"FIG"+pad(iFigure,3)+".jpg"};
 		}
 	else if(tblClass == "Q & A Header"){
 		handleHeaderTable(tblClass,p);
@@ -687,13 +688,15 @@ function setHeadingLevel(heading){
 		chapter.sec[iH1-1].title = heading.contents;
 		}
 	else if(headingLevel == 2){
-		if(iH1 == 0){chapter.appendChild(new XML("<sec>")); iH1++};
+		if(typeof iH1 == 0){chapter.appendChild(new XML("<sec>")); iH1++}; // catch h2 without 0 count h1
+		if(typeof iH1 === 'undefined'){chapter.appendChild(new XML("<sec>")); iH1 = 1}; // catch h2 with undefined h1
 		iH3 = 0;
 		iH4 = 0;
 		if(typeof iH2 === 'undefined'){iH2 = 0}
 		tmpHeadingLevel = 2;
 		chapter.sec[iH1-1].appendChild(new XML("<sec>"));
 		iH2++;
+		$.writeln(chapter.sec.length()+", "+iH1);
 		chapter.sec[iH1-1].sec[iH2-1].@['disp-level'] = headingLevel;
 		chapter.sec[iH1-1].sec[iH2-1].@id = "CH"+pad(iChapter,3)+"."+"SEC"+pad(chapter.sec.length(),3)+"."+iH2;
 		chapter.sec[iH1-1].sec[iH2-1].@['sec-type'] = "section";
@@ -736,6 +739,7 @@ function getRef(reftype, rid, str){
     }
 
 function handleList(listParagraph){
+	$.writeln("entering: listParagraph");
 	var arrListStyles = ['Bullets', 'Number/Letter Indent', 'Number/Letter Indent2', 'Note'];
 	var arrSublistStyles = ['Number/Letter Sub', 'Number/Letter Indent_Sub', 'Bullets-sub', 'Q & A Indent'];
 	if(typeof iList1 === 'undefined'){iList1 = 0};
@@ -780,6 +784,11 @@ function handleList(listParagraph){
 	}
 
 function getActiveHeadingNode(){
+	$.writeln("entering: getActiveHeadingNode");
+	if(typeof tmpHeadingLevel === 'undefined'){
+		tmpHeadingLevel = "";
+		}
+	
 	if(tmpHeadingLevel == 1){
 		return chapter.sec[iH1-1];
 		}
@@ -792,9 +801,13 @@ function getActiveHeadingNode(){
 	else if(tmpHeadingLevel == 4){
 		return chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].sec[iH4-1];
 		}
+	else{
+		return chapter;
+		}
 	}
 
 function getActiveListNode(){
+	$.writeln("entering: getActiveListNode");
 	// if iList2 not active
 	if(iList2 == 0){
 		if(iList1 == 0){getActiveHeadingNode().appendChild(new XML("<list>")); iList1++};
@@ -842,6 +855,7 @@ function classifyTable(p){
 	}
 
 function handleHeaderTable(type,p){
+	$.writeln("entering: handleHeaderTable");
 	if(p.tables.length == 1){
 		var table = p.tables[0];
 		}
@@ -913,6 +927,7 @@ function tblToJPG(table,parentParagraph,tblClass,varCount){
 	}// function
 
 function handleOutcomeTable(table){
+	$.writeln("entering: handleOutcomeTable");
     // add header outcome to document; chapter/paragraph/boxedtext/
     var headerOutcome = table.cells[0];
     chapter.appendChild(new XML("<p>")) // add paragraph to root
@@ -931,7 +946,6 @@ function handleOutcomeTable(table){
         var activeP = objectiveBox.p[objectiveBox.p.length()-1]; // get sub paragraph index
         activeP.bold.italic = listOutcomes.paragraphs[i].contents;
         }
-	
     var headerObjectives = table.cells[2];
 	chapter.appendChild(new XML("<p>")) // add paragraph to root
 	var activeP = chapter.p[chapter.p.length()-1];
@@ -965,6 +979,7 @@ function handleOutcomeTable(table){
     }
 
 function handleObjectiveTable(table){
+	$.writeln("entering: handleObjectiveTable");
     // add header outcome to document; chapter/paragraph/boxedtext/
     var headerObjective = table.cells[0];
 	getActiveHeadingNode ().appendChild(new XML("<p>"));
@@ -983,6 +998,7 @@ function handleObjectiveTable(table){
     }
 
 function createManifest(fManifest){
+	$.writeln("entering: createManifest");
 	//create chapter folder
     var chapterFolder = "C:\\Users\\kstaples\\Desktop\\0001 - Projects\\47 - New NLM\\NLM OUT\\"+app.activeDocument.name.replace(".indd","")+"\\";
     if(Folder(chapterFolder).exists==false){
@@ -995,7 +1011,7 @@ function createManifest(fManifest){
         fManifest.sort(function (a,b){return a.href>b.href})
     for(var i = 0; i<fManifest.length; i++){
         xmlManifest.appendChild(new XML("<file>"));
-        xmlManifest.file[xmlManifest.file.length()-1] = fManifest[i].href+".jpg";
+        xmlManifest.file[xmlManifest.file.length()-1] = fManifest[i].href;
         }//i
 	fleManifest = File(chapterFolder+"manifest.xml");
     fleManifest.open('w');
@@ -1005,6 +1021,7 @@ function createManifest(fManifest){
     }
 
 function sequenceParagraphs(doc) {
+	$.writeln("entering: sequenceParagraphs");
 	var paragraphs = [];
 	//process document by spreads, pages, textFrames, paragraphs, tables
 	for (var i = 0; i < doc.pages.length; i++) {
@@ -1048,6 +1065,7 @@ function sequenceParagraphs(doc) {
 						}
 					}
 				else {
+					if(p.contents.replace(/\W+/g,'').length == 0){continue};
 					paragraphs[paragraphs.length] = {
 						type: "paragraph",
 						pgId: i,
@@ -1065,6 +1083,7 @@ function sequenceParagraphs(doc) {
 	}
 
 function getBounds(p){
+	$.writeln("entering: getBounds");
 	if(p.characters[0].tables.length>0){
 		return getTableBounds(p);
 		}
@@ -1075,6 +1094,7 @@ function getBounds(p){
 	}
 
 function getTableBounds(tbl){
+	$.writeln("entering: getTableBounds");
 	app.select(tbl);
 	app.activeDocument.zeroPoint=[0,0];
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
@@ -1090,12 +1110,18 @@ function getTableBounds(tbl){
 	}
 
 function getParagraphBounds(p){
+	$.writeln("entering: getParagraphBounds");
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
 	app.activeDocument.viewPreferences.verticalMeasurementUnits = MeasurementUnits.POINTS;
 	app.select(p);
 	//$.writeln(p.constructor.name+": "+p.contents+"\rlength:"+p.contents.length);
 	if(p.contents=="\r"){return false};
 	if(p.contents.indexOf('\FFFC') > -1){return false}
+	if(p.contents.replace(/\s/gi,"").length == 2){
+		for(var i = 0; i<p.contents.replace(/\s/gi,"").length; i++){
+			$.writeln(p.contents.replace(/\s/gi,"").charCodeAt(0));
+			}
+		}
 	var o = p.createOutlines(false);
 	var GB = (o[0].geometricBounds);
 	//app.activeDocument.undo();
@@ -1103,6 +1129,7 @@ function getParagraphBounds(p){
 	}
 
 function getRectangleBounds(r){
+	$.writeln("entering: getRectangleBounds");
 	app.activeDocument.zeroPoint=[0,0];
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
 	app.activeDocument.viewPreferences.verticalMeasurementUnits = MeasurementUnits.POINTS;
@@ -1142,6 +1169,7 @@ function handleRectangle(r){
 	}
 
 function getLinkURL(objSource){
+	$.writeln("entering: getLinkURL");
 	var hyperlinks = app.activeDocument.hyperlinks;
 	for(var i = 0; i<hyperlinks.length; i++){
 		var hyperlink = hyperlinks[i];
@@ -1179,11 +1207,13 @@ function getActiveParagraph(){
 	}
 
 function addMediaToObject(parentObject,URL){
+	$.writeln("entering: addMediaToObject");
 	parentObject.appendChild(new XML("<media>"));
 	parentObject.media[parentObject.media.length()-1].@['xlinkhref'] = URL;
 	}
 
 function addGraphicToObject(parentObject,graphic){
+	$.writeln("entering: addGraphicToObject");
 	parentObject.appendChild(new XML("<inline-graphic>"));
 	graphicToJPG(graphic);
 	var extension = decodeURI(File(graphic.itemLink.filePath).name.split(".")[File(graphic.itemLink.filePath).name.split(".").length-1]);
@@ -1193,6 +1223,7 @@ function addGraphicToObject(parentObject,graphic){
 	}
 
 function getLinkURL(objSource){
+	$.writeln("entering: getLinkURL");
 	var hyperlinks = app.activeDocument.hyperlinks;
 	for(var i = 0; i<hyperlinks.length; i++){
 		var hyperlink = hyperlinks[i];
@@ -1204,6 +1235,7 @@ function getLinkURL(objSource){
 	}
 
 function graphicToJPG(graphic){
+	$.writeln("entering: graphicToJPG");
 	if(typeof graphic === 'undefined'){alert("Graphic undefined.")};
 	var extension = decodeURI(File(graphic.itemLink.filePath).name.split(".")[File(graphic.itemLink.filePath).name.split(".").length-1]);
 	var jpgFilename = File(graphic.itemLink.filePath).name.replace(extension,"jpg");
@@ -1218,10 +1250,12 @@ function graphicToJPG(graphic){
 			alert("File not created successfully: "+jpgFilename);
 			}
 		manifest[manifest.length] = {href:jpgFilename};
+		alert(manifest[manifest.length-1].href);
 		}
 	}
 
-function GetSubFolders(theFolder) {  
+function GetSubFolders(theFolder) {
+	$.writeln("entering: GetSubFolders");
      var myFileList = theFolder.getFiles();  
      for (var i = 0; i < myFileList.length; i++) {  
           var myFile = myFileList[i];  
@@ -1235,6 +1269,7 @@ function GetSubFolders(theFolder) {
 }
 
 function resetGlobals(){
+	$.writeln("entering: resetGlobals");
 	iH1 = undefined ();
 	iH2 = undefined ();
 	iH3 = undefined ();
@@ -1255,6 +1290,7 @@ function undefined(){
 
 function addInlineGraphic(image)
 {
+	$.writeln("entering: addInlineGraphic");
     var chapterNumber = pad(iChapter,3);
     var chapterFolder = "C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\NLM Out\\"+app.activeDocument.name.replace(".indd","")+"\\";
     if(Folder(chapterFolder).exists){}else{Folder(chapterFolder).create()}
@@ -1276,6 +1312,7 @@ function addInlineGraphic(image)
     }
 
 function convertBulletsAndNumberingToText(){
+	$.writeln("convertBulletsAndNumberingToText");
 	for(var i = app.activeDocument.pages.length-1; i >= 0; i--){
 		var pg = app.activeDocument.pages[i];
 		for(var j = pg.textFrames.length-1; j >= 0; j--){
@@ -1304,6 +1341,7 @@ function convertBulletsAndNumberingToText(){
 	}
 
 function handleTableHeader(p){
+	$.writeln("handleTableHeader");
 	var table = p.tables[0];
 	if(typeof iTable === 'undefined'){iTable = 1}
 	else{iTable++}
@@ -1318,10 +1356,11 @@ function handleTableHeader(p){
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::href'] = "CH"+pad(iChapter,3)+".TAB"+pad(iTable,3);
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::title'] = "Table "+iTable;
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xhtml::xlink'] = "http://www.w3.org/1999/xlink";
-	manifest[manifest.length] = {href:"CH"+pad(iChapter,3)+"."+"TAB"+pad(iTable+1,3)};
+	manifest[manifest.length] = {href:app.activeDocument.name.replace(".indd","")+"."+"TAB"+pad(iTable,3)+".jpg"};
 	}
 
 function handleMiscTable(p){
+	$.writeln("handleMiscTable");
 	var table = p.tables[0];
 	//handle table header
 	if(typeof iMiscTable === 'undefined'){iMiscTable = 1}
@@ -1337,5 +1376,5 @@ function handleMiscTable(p){
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::href'] = "CH"+pad(iChapter,3)+".MTAB"+pad(iMiscTable,3);
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::title'] = "Table "+iMiscTable;
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xhtml::xlink'] = "http://www.w3.org/1999/xlink";
-	manifest[manifest.length] = {href:"CH"+pad(iChapter,3)+"."+"MTAB"+pad(iMiscTable+1,3)};
+	manifest[manifest.length] = {href:app.activeDocument.name.replace(".indd","")+"."+"MTAB"+pad(iMiscTable,3)+".jpg"};
 	}
