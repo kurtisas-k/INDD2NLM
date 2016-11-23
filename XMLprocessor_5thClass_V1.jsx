@@ -81,7 +81,7 @@ for(var i = 0; i<myFiles.length; i++){
 
 function initializeXmlBook(){
 	resetGlobals();
-	$.writeln("entering: initializeXmlBook");
+	//$.writeln("entering: initializeXmlBook");
 	iVol = 0;
 	iPart = 0;
 	iSection = 0;
@@ -132,9 +132,12 @@ function initializeXmlBook(){
     //create chapter & set attributes
     section.body.appendChild(new XML("<book-part>"));
     chapter = section.body['book-part'];
-    if(iChapter.length == 3){
-    chapter.@id = "CH"+pad(iChapter,4);
-    }else{chapter.@id = "CH"+pad(iChapter,4)}
+    if(iChapter.length == 3){ // impelsys requires that a chapter id always contains a leading 0
+		chapter.@id = "CH"+pad(iChapter,4);
+		}
+	else{
+		chapter.@id = "CH"+pad(iChapter,3);
+		}
     chapter.@['book-part-type'] = "chapter"; //+g.iChapter;
     chapter.@['book-part-number'] = 1;
     chapter.appendChild(new XML("<book-part-meta>"));
@@ -146,7 +149,7 @@ function initializeXmlBook(){
 	}
 
 function getDocumentList(){
-	$.writeln("entering: getDocumentList ");
+	//$.writeln("entering: getDocumentList ");
 	//var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\1-CEPE03200_CURRENT MASTER FILES_activated  Feb10-15","C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\4th Class Corrected Formulas"];
 	//var folder = Folder.selectDialog ();
 	var folders = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign\\"];
@@ -165,7 +168,7 @@ myFiles = ["C:\\Users\\kstaples\\Desktop\\Edition 3\\InDesign\\Book 2-Edition 3\
 }
 
 function convertMathToolsV1DocumentToMathToolsV2(doc){
-	$.writeln("entering: convertMathToolsV1DocumentToMathToolsV2");
+	//$.writeln("entering: convertMathToolsV1DocumentToMathToolsV2");
     //enable math for document
     app.activeDocument.mtEnableMathToolsOnDocument();
     //convert document to mathtools v2
@@ -229,7 +232,7 @@ function loadPrototypeFunctions(){ // anonymous function extends Array functions
 	}
 
 function splitCSVButIgnoreCommasInDoublequotes(str) {  
-	$.writeln("splitCSVButIgnoreCommasInDoublequotes");
+	//$.writeln("splitCSVButIgnoreCommasInDoublequotes");
     //split the str first  
     //then merge the elments between two double quotes  
     var delimiter = ',';  
@@ -273,7 +276,7 @@ function pad(num, size) {
     }
 
 function getChapterVariables(){
-	$.writeln("entering: getChapterVariables");
+	//$.writeln("entering: getChapterVariables");
     for(var i = 0; i<app.activeDocument.pages[0].textFrames.length; i++){
         var tf = app.activeDocument.pages[0].textFrames[i];
         for(var j = 0; j<tf.paragraphs.length; j++){
@@ -289,7 +292,7 @@ function getChapterVariables(){
     }
 
 function getContents(p){
-	$.writeln("entering: getContents");
+	//$.writeln("entering: getContents");
     var paragraphContents = "";
     if(true){
         arrMathZonesMML = [];
@@ -307,7 +310,7 @@ function getContents(p){
 			var chr = p.characters[i];
 			var chrContents = chr.contents; // variable space for character contents
 			if(chr.contents.constructor.name === "Enumerator"){
-				//$.writeln("Enumerator section entered: "+chr.contents.toString()+", length:"+chr.contents.toString().length);
+				////$.writeln("Enumerator section entered: "+chr.contents.toString()+", length:"+chr.contents.toString().length);
 				chrContents = chr.contents;
 				if(chr.contents==SpecialCharacters.ARABIC_COMMA){chrContents = "";}
 				if(chr.contents==SpecialCharacters.ARABIC_KASHIDA){chrContents = "";}
@@ -458,7 +461,7 @@ function getContents(p){
                 }
 			
 			if(chrContents.constructor.name === "Enumerator"){ // page breaks, column breaks
-				$.writeln("Enumerator loop reached.");
+				//$.writeln("Enumerator loop reached.");
 				if(chrContents==SpecialCharacters.BULLET_CHARACTER){paragraphContents += "&#8226;"}
 				else if(chrContents==SpecialCharacters.PAGE_BREAK){}
 				else if(chrContents==SpecialCharacters.DOUBLE_LEFT_QUOTE){paragraphContents += "&#8220;"}
@@ -531,12 +534,12 @@ function getContents(p){
     }
 
 function parseParagraph(){
-	$.writeln("entering: paragraphParser");
+	//$.writeln("entering: paragraphParser");
 	var paragraphs = sequenceParagraphs (app.activeDocument);
 	for(var i = 0; i<paragraphs.length; i++){
 		if(paragraphs[i].type == "paragraph"){
 			var p = app.activeDocument.pages[paragraphs[i]["pgId"]].textFrames[paragraphs[i]["tfId"]].paragraphs[paragraphs[i]["pId"]];
-			$.writeln(paragraphs[i]["pgId"]+", "+paragraphs[i]["tfId"]+", "+paragraphs[i]["pId"]);
+			//$.writeln(paragraphs[i]["pgId"]+", "+paragraphs[i]["tfId"]+", "+paragraphs[i]["pId"]);
 			if(p.characters.length==0){continue};
 			handleParagraph(p);
 			}
@@ -551,7 +554,7 @@ function parseParagraph(){
 	}
 
 function classifyParagraph(paragraph){
-	$.writeln("entering: classifyParagraph");
+	//$.writeln("entering: classifyParagraph");
 	if(paragraph.tables.length>0){
 		return "table";
 		}
@@ -562,12 +565,12 @@ function classifyParagraph(paragraph){
 	}
 
 function handleOther(){
-	$.writeln("entering: handleOther");
+	//$.writeln("entering: handleOther");
 	}
 
 function handleParagraph(paragraph){
-	$.writeln("entering: handleParagraph");
-	$.writeln(paragraph.contents);
+	//$.writeln("entering: handleParagraph");
+	//$.writeln(paragraph.contents);
 	var headingStyles = ["Heading 1","Heading 2","Heading 3","Heading 4","Q & A Header"];
 	var bodyStyles = ["Body Text","Body Text - Indented"];
 	var listStyles = ['Bullets', 'Number/Letter Indent', 'Number/Letter Indent2', 'Note','Number/Letter Sub', 'Number/Letter Indent_Sub', 'Bullets-sub', 'Q & A Indent'];	
@@ -590,7 +593,7 @@ function handleParagraph(paragraph){
 	}
 
 function handleTable(p){
-	$.writeln("entering: handleTable");
+	//$.writeln("entering: handleTable");
 	var tblClass = classifyTable(p);
 	if(tblClass == "tables in table"){
 		for(var i = 0; i<p.tables[0].cells.length; i++){
@@ -605,11 +608,11 @@ function handleTable(p){
 		tblToJPG (p.tables[0],p,"figure",iFigure); // create image
 		getActiveHeadingNode ().appendChild(new XML("<fig>"));
 		getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['fig-type'] = "figure";
-		getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['id'] = "CH"+pad(iChapter,3)+".FIG"+pad(iFigure,3);
+		getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['id'] = app.activeDocument.name.replace(".indd","")+"."+"FIG"+pad(iFigure,3);
 		getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].appendChild(new XML("<p>"));
 		var activeP = getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].p[getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].p.length()-1];
 		activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['mime-subtype'] = "jpg";
-		activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::href'] = "CH"+pad(iChapter,3)+".FIG"+pad(iFigure,3);
+		activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::href'] = app.activeDocument.name.replace(".indd","")+".FIG"+pad(iFigure,3);
 		activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::title'] = "Figure "+iFigure;
 		activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xhtml::xlink'] = "http://www.w3.org/1999/xlink";
 		manifest[manifest.length] = {href:app.activeDocument.name.replace(".indd","")+"."+"FIG"+pad(iFigure,3)+".jpg"};
@@ -630,22 +633,22 @@ function handleTable(p){
 		}
 	else if(tblClass == "other"){
 		handleMiscTable(p);
-		$.writeln("other table class");
+		//$.writeln("other table class");
 		}
 	else if(typeof tblClass === 'undefined'){
-		$.writeln("undefined table class");
+		//$.writeln("undefined table class");
 		}
 		
 	}
 
 function handleHeading(heading){
-	$.writeln("entering: handleHeader");
+	//$.writeln("entering: handleHeader");
 	var headingLevel = setHeadingLevel(heading);
 	}
 
 
 function handleBodyParagraph(bodyParagraph){
-	$.writeln("entering: handleBodyParagraph");
+	//$.writeln("entering: handleBodyParagraph");
 	if(tmpHeadingLevel == 1){
 		chapter.sec[iH1-1].appendChild(new XML("<p>"));
 		chapter.sec[iH1-1].p[chapter.sec[iH1-1].p.length()-1] = getContents (bodyParagraph);
@@ -667,7 +670,7 @@ function handleBodyParagraph(bodyParagraph){
 
 function setHeadingLevel(heading){
 	iList1 = 0; iList2 = 0;
-	$.writeln("entering: setHeadingLevel");
+	//$.writeln("entering: setHeadingLevel");
 	var style = heading.appliedParagraphStyle.name;
 	if(typeof tmpHeadingLevel === 'undefined'){tmpHeadingLevel = 0};
 	var headingLevel = style.substring(0,9).replace("Heading ","");
@@ -696,7 +699,7 @@ function setHeadingLevel(heading){
 		tmpHeadingLevel = 2;
 		chapter.sec[iH1-1].appendChild(new XML("<sec>"));
 		iH2++;
-		$.writeln(chapter.sec.length()+", "+iH1);
+		//$.writeln(chapter.sec.length()+", "+iH1);
 		chapter.sec[iH1-1].sec[iH2-1].@['disp-level'] = headingLevel;
 		chapter.sec[iH1-1].sec[iH2-1].@id = "CH"+pad(iChapter,3)+"."+"SEC"+pad(chapter.sec.length(),3)+"."+iH2;
 		chapter.sec[iH1-1].sec[iH2-1].@['sec-type'] = "section";
@@ -735,11 +738,11 @@ function setHeadingLevel(heading){
 	}
 
 function getRef(reftype, rid, str){
-    return "<xref ref-type=\""+reftype+"\" rid=\""+"CH"+pad(iChapter,3)+"."+String(reftype.substring(0,3).toUpperCase())+rid+"\">"+str+"</xref>";
-    }
+    return "<xref ref-type=\""+reftype+"\" rid=\""+app.activeDocument.name.replace(".indd","")+"."+String(reftype.substring(0,3).toUpperCase())+rid+"\">"+str+"</xref>";
+	}
 
 function handleList(listParagraph){
-	$.writeln("entering: listParagraph");
+	//$.writeln("entering: listParagraph");
 	var arrListStyles = ['Bullets', 'Number/Letter Indent', 'Number/Letter Indent2', 'Note'];
 	var arrSublistStyles = ['Number/Letter Sub', 'Number/Letter Indent_Sub', 'Bullets-sub', 'Q & A Indent'];
 	if(typeof iList1 === 'undefined'){iList1 = 0};
@@ -767,8 +770,8 @@ function handleList(listParagraph){
 				getActiveListNode ().@['list-type']="bullet";
 				}
 			else{
-				$.writeln(iH1+", "+iH2+", "+iH3+", "+iH4);
-				$.writeln(iList1+", "+iList2);
+				//$.writeln(iH1+", "+iH2+", "+iH3+", "+iH4);
+				//$.writeln(iList1+", "+iList2);
 				getActiveListNode ().@['list-type']="simple";
 				}
 			iList2++;
@@ -784,7 +787,7 @@ function handleList(listParagraph){
 	}
 
 function getActiveHeadingNode(){
-	$.writeln("entering: getActiveHeadingNode");
+	//$.writeln("entering: getActiveHeadingNode");
 	if(typeof tmpHeadingLevel === 'undefined'){
 		tmpHeadingLevel = "";
 		}
@@ -807,7 +810,7 @@ function getActiveHeadingNode(){
 	}
 
 function getActiveListNode(){
-	$.writeln("entering: getActiveListNode");
+	//$.writeln("entering: getActiveListNode");
 	// if iList2 not active
 	if(iList2 == 0){
 		if(iList1 == 0){getActiveHeadingNode().appendChild(new XML("<list>")); iList1++};
@@ -819,12 +822,12 @@ function getActiveListNode(){
 	}
 
 function classifyTable(p){
-	$.writeln("entering: classifyTable");
+	//$.writeln("entering: classifyTable");
 	if(p.tables.length > 1){
 		return;
 		}
 	else if(p.tables.length == 1){
-		$.writeln("table length is 1");
+		//$.writeln("table length is 1");
 		var table = p.tables[0];
 		for(var i = 0; i<table.cells.length; i++){
 			var cell = table.cells[i];
@@ -833,14 +836,14 @@ function classifyTable(p){
 				return "tables in table";
 				}
 			else{
-				$.writeln("entering cell loop");
+				//$.writeln("entering cell loop");
 				for(var j = 0; j<cell.paragraphs.length; j++){
 					var p = cell.paragraphs[j];
 					if(p.appliedParagraphStyle.name == "TFigure Header"||p.appliedParagraphStyle.name == "Q & A Header"||p.appliedParagraphStyle.name == "Objective Header"||p.appliedParagraphStyle.name == "Chapter LO - Header"||p.appliedParagraphStyle.name == "Table Header"){
-						$.writeln(p.appliedParagraphStyle.name);
+						//$.writeln(p.appliedParagraphStyle.name);
 						return p.appliedParagraphStyle.name;
 						}
-					$.writeln("returning null");
+					//$.writeln("returning null");
 					return;
 					}
 				}
@@ -855,7 +858,7 @@ function classifyTable(p){
 	}
 
 function handleHeaderTable(type,p){
-	$.writeln("entering: handleHeaderTable");
+	//$.writeln("entering: handleHeaderTable");
 	if(p.tables.length == 1){
 		var table = p.tables[0];
 		}
@@ -872,7 +875,7 @@ function handleHeaderTable(type,p){
 	}
 
 function tblToJPG(table,parentParagraph,tblClass,varCount){
-	$.writeln("entering: tblToJPG");
+	//$.writeln("entering: tblToJPG");
 	switch(tblClass){
 		case "table":
 		tblClassCode = "TAB";
@@ -887,9 +890,9 @@ function tblToJPG(table,parentParagraph,tblClass,varCount){
 		alert("Problem encountered in function tblToJPG. The table class "+tblClass+" is unknown.");
 		}
 	app.select(table);
-	$.writeln("table selected");
+	//$.writeln("table selected");
 	app.copy();
-	$.writeln("entering: tblToJPG:copy");
+	//$.writeln("entering: tblToJPG:copy");
 	var docName = app.activeDocument.name;
 	app.activeDocument.zeroPoint=[0,0];
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
@@ -907,11 +910,11 @@ function tblToJPG(table,parentParagraph,tblClass,varCount){
 				}
 			}
 		});
-	$.writeln("table added");
+	//$.writeln("table added");
 	newDoc.pages[0].textFrames[0].geometricBounds = [0,0,newDoc.documentPreferences.pageHeight,newDoc.documentPreferences.pageWidth];
 	app.select(newDoc.pages[0].textFrames[0].insertionPoints[0])
 	app.paste();
-	$.writeln("table pasted");
+	//$.writeln("table pasted");
 	app.activeDocument.pages[0].textFrames[0].textFramePreferences.verticalJustification = VerticalJustification.CENTER_ALIGN;
 	app.activeDocument.pages[0].textFrames[0].paragraphs[0].justification = Justification.CENTER_ALIGN;
 	var chapterFolder = "C:\\Users\\kstaples\\Desktop\\0001 - Projects\\47 - New NLM\\NLM Out\\"+docName.replace(".indd","")+"\\";
@@ -922,12 +925,12 @@ function tblToJPG(table,parentParagraph,tblClass,varCount){
 	//newDoc.save("c:\\users\\kstaples\\desktop\\figuredocuments\\"+docName.replace(".indd","")+"."+tblClassCode+pad(varCount,3)+".indd");
 	newDoc.exportFile("JPEG",chapterFolder+docName.replace(".indd","")+"."+tblClassCode+pad(varCount,3)+".jpg",false);
 	newDoc.close(SaveOptions.NO);
-	$.writeln(app.activeDocument.name);
+	//$.writeln(app.activeDocument.name);
 	//app.activeDocument = app.documents.itemByName(docName);
 	}// function
 
 function handleOutcomeTable(table){
-	$.writeln("entering: handleOutcomeTable");
+	//$.writeln("entering: handleOutcomeTable");
     // add header outcome to document; chapter/paragraph/boxedtext/
     var headerOutcome = table.cells[0];
     chapter.appendChild(new XML("<p>")) // add paragraph to root
@@ -979,7 +982,7 @@ function handleOutcomeTable(table){
     }
 
 function handleObjectiveTable(table){
-	$.writeln("entering: handleObjectiveTable");
+	//$.writeln("entering: handleObjectiveTable");
     // add header outcome to document; chapter/paragraph/boxedtext/
     var headerObjective = table.cells[0];
 	getActiveHeadingNode ().appendChild(new XML("<p>"));
@@ -998,7 +1001,7 @@ function handleObjectiveTable(table){
     }
 
 function createManifest(fManifest){
-	$.writeln("entering: createManifest");
+	//$.writeln("entering: createManifest");
 	//create chapter folder
     var chapterFolder = "C:\\Users\\kstaples\\Desktop\\0001 - Projects\\47 - New NLM\\NLM OUT\\"+app.activeDocument.name.replace(".indd","")+"\\";
     if(Folder(chapterFolder).exists==false){
@@ -1021,7 +1024,7 @@ function createManifest(fManifest){
     }
 
 function sequenceParagraphs(doc) {
-	$.writeln("entering: sequenceParagraphs");
+	//$.writeln("entering: sequenceParagraphs");
 	var paragraphs = [];
 	//process document by spreads, pages, textFrames, paragraphs, tables
 	for (var i = 0; i < doc.pages.length; i++) {
@@ -1061,7 +1064,7 @@ function sequenceParagraphs(doc) {
 							pId: l,
 							gb: getBounds(p)
 							};
-						//$.writeln("RECTANGLE:") //+p.contents+", "+pgParagraphs[pgParagraphs.length-1].gb.toString());
+						////$.writeln("RECTANGLE:") //+p.contents+", "+pgParagraphs[pgParagraphs.length-1].gb.toString());
 						}
 					}
 				else {
@@ -1073,7 +1076,7 @@ function sequenceParagraphs(doc) {
 						pId: l,
 						gb: getBounds(p)
 						};
-					//$.writeln("PARAGRAPH:") //+p.contents+", "+pgParagraphs[pgParagraphs.length-1].gb.toString());
+					////$.writeln("PARAGRAPH:") //+p.contents+", "+pgParagraphs[pgParagraphs.length-1].gb.toString());
 					}
 				}
 			}
@@ -1083,7 +1086,7 @@ function sequenceParagraphs(doc) {
 	}
 
 function getBounds(p){
-	$.writeln("entering: getBounds");
+	//$.writeln("entering: getBounds");
 	if(p.characters[0].tables.length>0){
 		return getTableBounds(p);
 		}
@@ -1094,7 +1097,7 @@ function getBounds(p){
 	}
 
 function getTableBounds(tbl){
-	$.writeln("entering: getTableBounds");
+	//$.writeln("entering: getTableBounds");
 	app.select(tbl);
 	app.activeDocument.zeroPoint=[0,0];
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
@@ -1110,16 +1113,16 @@ function getTableBounds(tbl){
 	}
 
 function getParagraphBounds(p){
-	$.writeln("entering: getParagraphBounds");
+	//$.writeln("entering: getParagraphBounds");
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
 	app.activeDocument.viewPreferences.verticalMeasurementUnits = MeasurementUnits.POINTS;
 	app.select(p);
-	//$.writeln(p.constructor.name+": "+p.contents+"\rlength:"+p.contents.length);
+	////$.writeln(p.constructor.name+": "+p.contents+"\rlength:"+p.contents.length);
 	if(p.contents=="\r"){return false};
 	if(p.contents.indexOf('\FFFC') > -1){return false}
 	if(p.contents.replace(/\s/gi,"").length == 2){
 		for(var i = 0; i<p.contents.replace(/\s/gi,"").length; i++){
-			$.writeln(p.contents.replace(/\s/gi,"").charCodeAt(0));
+			//$.writeln(p.contents.replace(/\s/gi,"").charCodeAt(0));
 			}
 		}
 	var o = p.createOutlines(false);
@@ -1129,7 +1132,7 @@ function getParagraphBounds(p){
 	}
 
 function getRectangleBounds(r){
-	$.writeln("entering: getRectangleBounds");
+	//$.writeln("entering: getRectangleBounds");
 	app.activeDocument.zeroPoint=[0,0];
 	app.activeDocument.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS;
 	app.activeDocument.viewPreferences.verticalMeasurementUnits = MeasurementUnits.POINTS;
@@ -1138,7 +1141,7 @@ function getRectangleBounds(r){
 	}
 
 function handleRectangle(r){
-	$.writeln("entering: handleRectangle");
+	//$.writeln("entering: handleRectangle");
 	if(r.allGraphics.length > 0){ // contains graphics
 		//contains media elements
 		if(r.allGraphics.length==1){
@@ -1169,7 +1172,7 @@ function handleRectangle(r){
 	}
 
 function getLinkURL(objSource){
-	$.writeln("entering: getLinkURL");
+	//$.writeln("entering: getLinkURL");
 	var hyperlinks = app.activeDocument.hyperlinks;
 	for(var i = 0; i<hyperlinks.length; i++){
 		var hyperlink = hyperlinks[i];
@@ -1181,39 +1184,39 @@ function getLinkURL(objSource){
 	}
 
 function getActiveParagraph(){
-	$.writeln("entering: getActiveParagraph");
-	$.writeln(iH1+", "+iH2+", "+iH3+", "+iH4);
+	//$.writeln("entering: getActiveParagraph");
+	//$.writeln(iH1+", "+iH2+", "+iH3+", "+iH4);
 	if(tmpHeadingLevel == 1){
 		var activeP = chapter.sec[iH1-1].p[chapter.sec[iH1-1].p.length()-1];
-		$.writeln(chapter.sec[iH1-1].p.length()-1);
+		//$.writeln(chapter.sec[iH1-1].p.length()-1);
 		return activeP;
 		};
 	else if(tmpHeadingLevel == 2){
 		var activeP = chapter.sec[iH1-1].sec[iH2-1].p[chapter.sec[iH1-1].sec[iH2-1].p.length()-1];
-		$.writeln(chapter.sec[iH1-1].sec[iH2-1].p.length()-1);
+		//$.writeln(chapter.sec[iH1-1].sec[iH2-1].p.length()-1);
 		return activeP;
 		};
 	else if(tmpHeadingLevel == 3){
 		var activeP = chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].p[chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].p.length()-1];
-		$.writeln(chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].p.length()-1);
+		//$.writeln(chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].p.length()-1);
 		return activeP;
 		};
 	else if(tmpHeadingLevel == 4){
 		var activeP = chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].sec[iH4-1].p[chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].sec[iH4-1].p.length()-1];
-		$.writeln(chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].sec[iH4-1].p.length()-1);
+		//$.writeln(chapter.sec[iH1-1].sec[iH2-1].sec[iH3-1].sec[iH4-1].p.length()-1);
 		return activeP;
 		};
 	else{alert("error heading level not selected");}
 	}
 
 function addMediaToObject(parentObject,URL){
-	$.writeln("entering: addMediaToObject");
+	//$.writeln("entering: addMediaToObject");
 	parentObject.appendChild(new XML("<media>"));
 	parentObject.media[parentObject.media.length()-1].@['xlinkhref'] = URL;
 	}
 
 function addGraphicToObject(parentObject,graphic){
-	$.writeln("entering: addGraphicToObject");
+	//$.writeln("entering: addGraphicToObject");
 	parentObject.appendChild(new XML("<inline-graphic>"));
 	graphicToJPG(graphic);
 	var extension = decodeURI(File(graphic.itemLink.filePath).name.split(".")[File(graphic.itemLink.filePath).name.split(".").length-1]);
@@ -1223,7 +1226,7 @@ function addGraphicToObject(parentObject,graphic){
 	}
 
 function getLinkURL(objSource){
-	$.writeln("entering: getLinkURL");
+	//$.writeln("entering: getLinkURL");
 	var hyperlinks = app.activeDocument.hyperlinks;
 	for(var i = 0; i<hyperlinks.length; i++){
 		var hyperlink = hyperlinks[i];
@@ -1235,7 +1238,7 @@ function getLinkURL(objSource){
 	}
 
 function graphicToJPG(graphic){
-	$.writeln("entering: graphicToJPG");
+	//$.writeln("entering: graphicToJPG");
 	if(typeof graphic === 'undefined'){alert("Graphic undefined.")};
 	var extension = decodeURI(File(graphic.itemLink.filePath).name.split(".")[File(graphic.itemLink.filePath).name.split(".").length-1]);
 	var jpgFilename = File(graphic.itemLink.filePath).name.replace(extension,"jpg");
@@ -1250,12 +1253,11 @@ function graphicToJPG(graphic){
 			alert("File not created successfully: "+jpgFilename);
 			}
 		manifest[manifest.length] = {href:jpgFilename};
-		alert(manifest[manifest.length-1].href);
 		}
 	}
 
 function GetSubFolders(theFolder) {
-	$.writeln("entering: GetSubFolders");
+	//$.writeln("entering: GetSubFolders");
      var myFileList = theFolder.getFiles();  
      for (var i = 0; i < myFileList.length; i++) {  
           var myFile = myFileList[i];  
@@ -1269,7 +1271,7 @@ function GetSubFolders(theFolder) {
 }
 
 function resetGlobals(){
-	$.writeln("entering: resetGlobals");
+	//$.writeln("entering: resetGlobals");
 	iH1 = undefined ();
 	iH2 = undefined ();
 	iH3 = undefined ();
@@ -1290,7 +1292,7 @@ function undefined(){
 
 function addInlineGraphic(image)
 {
-	$.writeln("entering: addInlineGraphic");
+	//$.writeln("entering: addInlineGraphic");
     var chapterNumber = pad(iChapter,3);
     var chapterFolder = "C:\\Users\\kstaples\\Desktop\\0001 - Projects\\23 - NLM Conversion\\NLM Out\\"+app.activeDocument.name.replace(".indd","")+"\\";
     if(Folder(chapterFolder).exists){}else{Folder(chapterFolder).create()}
@@ -1302,17 +1304,17 @@ function addInlineGraphic(image)
         }
     image.exportFile("JPEG",chapterFolder+"CH"+chapterNumber+"."+"INLINE"+pad(iInlineGraphic,3)+".jpg",false);
 	if(!File(chapterFolder+"CH"+chapterNumber+"."+"INLINE"+pad(iInlineGraphic,3)+".jpg").exists){
-	//$.writeln(chapterFolder+"CH"+chapterNumber+"."+"INLINE"+pad(g.iInlineGraphic,3)+".jpg"+" does not exist.");
+	////$.writeln(chapterFolder+"CH"+chapterNumber+"."+"INLINE"+pad(g.iInlineGraphic,3)+".jpg"+" does not exist.");
 	}
     inlineGraphic = new XML("<inlinegraphic>");
     inlineGraphic.@mimesubtype = "jpg";
-    inlineGraphic.@xlinkhref = "CH"+chapterNumber+"."+"INLINE"+pad(iInlineGraphic,3);
+    inlineGraphic.@xlinkhref =app.activeDocument.name.replace(".indd","")+"."+"INLINE"+pad(iInlineGraphic,3);
     inlineGraphic.@xmlns::xlink = """http://www.w3.org/1999/xlink""";
     return inlineGraphic.toXMLString();
     }
 
 function convertBulletsAndNumberingToText(){
-	$.writeln("convertBulletsAndNumberingToText");
+	//$.writeln("convertBulletsAndNumberingToText");
 	for(var i = app.activeDocument.pages.length-1; i >= 0; i--){
 		var pg = app.activeDocument.pages[i];
 		for(var j = pg.textFrames.length-1; j >= 0; j--){
@@ -1341,7 +1343,7 @@ function convertBulletsAndNumberingToText(){
 	}
 
 function handleTableHeader(p){
-	$.writeln("handleTableHeader");
+	//$.writeln("handleTableHeader");
 	var table = p.tables[0];
 	if(typeof iTable === 'undefined'){iTable = 1}
 	else{iTable++}
@@ -1349,18 +1351,18 @@ function handleTableHeader(p){
 	tblToJPG (p.tables[0],p,"table",iTable); // create image
 	getActiveHeadingNode ().appendChild(new XML("<fig>"));
 	getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['fig-type'] = "figure";
-	getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['id'] = "CH"+pad(iChapter,3)+".TAB"+pad(iTable,3);
+	getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['id'] = app.activeDocument.name.replace(".indd","")+"."+"TAB"+pad(iTable,3);
 	getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].appendChild(new XML("<p>"));
 	var activeP = getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].p[getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].p.length()-1];
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['mime-subtype'] = "jpg";
-	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::href'] = "CH"+pad(iChapter,3)+".TAB"+pad(iTable,3);
+	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::href'] = app.activeDocument.name.replace(".indd","")+".TAB"+pad(iTable,3);
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xlink::title'] = "Table "+iTable;
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['xhtml::xlink'] = "http://www.w3.org/1999/xlink";
 	manifest[manifest.length] = {href:app.activeDocument.name.replace(".indd","")+"."+"TAB"+pad(iTable,3)+".jpg"};
 	}
 
 function handleMiscTable(p){
-	$.writeln("handleMiscTable");
+	//$.writeln("handleMiscTable");
 	var table = p.tables[0];
 	//handle table header
 	if(typeof iMiscTable === 'undefined'){iMiscTable = 1}
@@ -1369,7 +1371,7 @@ function handleMiscTable(p){
 	tblToJPG (p.tables[0],p,"table",iTable); // create image
 	getActiveHeadingNode ().appendChild(new XML("<fig>"));
 	getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['fig-type'] = "figure";
-	getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['id'] = "CH"+pad(iChapter,3)+".MTAB"+pad(iMiscTable,3);
+	getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].@['id'] = app.activeDocument.name.replace(".indd","")+"."+"MTAB"+pad(iMiscTable,3);
 	getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].appendChild(new XML("<p>"));
 	var activeP = getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].p[getActiveHeadingNode ().fig[getActiveHeadingNode ().fig.length()-1].p.length()-1];
 	activeP['inline-graphic'][activeP['inline-graphic'].length()-1].@['mime-subtype'] = "jpg";
